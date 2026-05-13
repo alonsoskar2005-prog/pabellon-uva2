@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pabellón Uva — Propuesta Arquitectónica</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&display=swap');
+
+  :root {
+    --verde-oscuro: #1a3a08;
+    --verde-medio: #3B6D11;
+    --verde-claro: #639922;
+    --verde-palido: #c8e898;
+    --crema: #f4f0e6;
+    --crema-oscuro: #e8e2d4;
+    --dorado: #b8973a;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--verde-oscuro);
+    color: var(--crema);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: linear-gradient(to bottom, rgba(10,25,5,0.95) 0%, transparent 100%);
+  }
+  .logo {
+    font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--verde-palido); font-family: 'DM Mono', monospace; font-weight:300;
+  }
+  nav a {
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(200,232,152,.6); text-decoration:none; margin-left:28px;
+    font-family: 'DM Mono', monospace; font-weight:300;
+    transition: color .3s;
+  }
+  nav a:hover { color: var(--verde-palido); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative; height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  #canvas3d {
+    position: absolute; inset:0; width:100%; height:100%;
+  }
+  .hero-text {
+    position: relative; z-index:10; text-align:center;
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size:10px;
+    letter-spacing:.28em; text-transform:uppercase;
+    color: var(--verde-palido); opacity:.7; margin-bottom:16px;
+  }
+  .hero-title {
+    font-size: clamp(52px, 8vw, 96px); font-weight:300; line-height:.95;
+    letter-spacing: -.02em; color: var(--crema);
+    text-shadow: 0 4px 40px rgba(0,0,0,.5);
+  }
+  .hero-title em { font-style:italic; color: var(--verde-palido); }
+  .hero-sub {
+    font-size: 16px; font-weight:300; color: rgba(244,240,230,.55);
+    margin-top: 18px; letter-spacing:.04em;
+  }
+  .hero-scroll {
+    position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em;
+    color:rgba(200,232,152,.4); text-transform:uppercase; z-index:10;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+    display:flex; gap:10px; z-index:10;
+  }
+  .ctrl-btn {
+    background: rgba(26,58,8,.7); border: 1px solid rgba(100,153,34,.4);
+    color: var(--verde-palido); font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:.12em; text-transform:uppercase; padding:8px 18px;
+    cursor:pointer; border-radius:2px; transition: all .25s;
+    backdrop-filter: blur(8px);
+  }
+  .ctrl-btn:hover, .ctrl-btn.active {
+    background: rgba(59,109,17,.6); border-color: var(--verde-claro);
+    color: #fff;
+  }
+
+  /* ── SECCIÓN INFO ── */
+  section {
+    padding: 100px 10vw;
+    border-top: 1px solid rgba(100,153,34,.15);
+  }
+  .section-label {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.25em;
+    text-transform:uppercase; color:var(--verde-claro); margin-bottom:48px;
+    display:flex; align-items:center; gap:16px;
+  }
+  .section-label::after {
+    content:''; flex:1; height:1px; background:rgba(100,153,34,.2);
+  }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .concept-title {
+    font-size: clamp(36px,4vw,56px); font-weight:300; line-height:1.1;
+    letter-spacing:-.01em; color:var(--crema); margin-bottom:28px;
+  }
+  .concept-title em { font-style:italic; color:var(--verde-palido); }
+  .concept-body {
+    font-size:17px; line-height:1.8; color:rgba(244,240,230,.65);
+    font-weight:300;
+  }
+  .concept-body + .concept-body { margin-top:20px; }
+
+  /* ── SPECS GRID ── */
+  .specs {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:rgba(100,153,34,.15); margin-top:80px;
+  }
+  .spec {
+    background:var(--verde-oscuro); padding:36px 28px;
+  }
+  .spec-num {
+    font-size: clamp(36px,4vw,52px); font-weight:300; color:var(--verde-palido);
+    line-height:1; margin-bottom:8px; font-style:italic;
+  }
+  .spec-label {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.2em;
+    text-transform:uppercase; color:rgba(200,232,152,.5);
+  }
+
+  /* ── MATERIALES ── */
+  .mat-list { list-style:none; margin-top:0; }
+  .mat-item {
+    display:grid; grid-template-columns:1fr 2fr;
+    padding:22px 0; border-bottom:1px solid rgba(100,153,34,.12);
+    align-items:baseline; gap:20px;
+  }
+  .mat-item:last-child { border-bottom:none; }
+  .mat-name {
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--verde-claro);
+  }
+  .mat-desc { font-size:16px; color:rgba(244,240,230,.6); line-height:1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding:50px 10vw; border-top:1px solid rgba(100,153,34,.15);
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.15em;
+    color:rgba(200,232,152,.3); text-transform:uppercase;
+  }
+
+  /* ── SLIDER ── */
+  .slider-row {
+    display:flex; align-items:center; gap:14px;
+    position:absolute; right:40px; bottom:130px; z-index:10;
+    flex-direction:column; align-items:flex-end;
+  }
+  .slider-label {
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:.18em;
+    text-transform:uppercase; color:rgba(200,232,152,.5);
+  }
+  input[type=range] {
+    -webkit-appearance:none; width:120px; height:2px;
+    background:rgba(100,153,34,.3); outline:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; width:12px; height:12px; border-radius:50%;
+    background:var(--verde-palido); cursor:pointer;
+  }
+
+  @media(max-width:768px){
+    .two-col{grid-template-columns:1fr;}
+    .specs{grid-template-columns:repeat(2,1fr);}
+    header nav{display:none;}
+    .slider-row{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Pabellón Uva — Itinerante Chile</div>
+  <nav>
+    <a href="#concepto">Concepto</a>
+    <a href="#sistema">Sistema</a>
+    <a href="#materiales">Materiales</a>
+  </nav>
+</header>
+
+<!-- HERO 3D -->
+<div class="hero">
+  <canvas id="canvas3d"></canvas>
+
+  <div class="hero-text">
+    <p class="hero-eyebrow">Pabellón itinerante · Viñas de Chile · 2025</p>
+    <h1 class="hero-title">La <em>geometría</em><br>de la uva</h1>
+    <p class="hero-sub">16 × 8 × 4 m &nbsp;·&nbsp; Estructura helicoidal &nbsp;·&nbsp; Membrana ETFE</p>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn active" onclick="setView(0)" id="btn0">Perspectiva</button>
+    <button class="ctrl-btn" onclick="setView(1)" id="btn1">Planta</button>
+    <button class="ctrl-btn" onclick="setView(2)" id="btn2">Lateral</button>
+    <button class="ctrl-btn" onclick="toggleSpin()" id="btnSpin">Rotar</button>
+  </div>
+
+  <div class="slider-row">
+    <span class="slider-label">Costillas</span>
+    <input type="range" id="ribSlider" min="6" max="18" value="12" step="1">
+    <span class="slider-label">Membrana</span>
+    <input type="range" id="opacSlider" min="0" max="100" value="55" step="1">
+  </div>
+
+  <div class="hero-scroll">↓ &nbsp; scroll</div>
+</div>
+
+<!-- CONCEPTO -->
+<section id="concepto">
+  <p class="section-label">01 — Concepto generador</p>
+  <div class="two-col">
+    <div>
+      <h2 class="concept-title">No imita la uva<br>desde <em>afuera</em>.<br>La construye<br>desde <em>adentro</em>.</h2>
+    </div>
+    <div>
+      <p class="concept-body">La uva no es solo una referencia morfológica: es un sistema estructural en sí misma. Su geometría interior revela un principio helicoidal que va del pedúnculo —punto único de carga y suspensión— hasta la base ecuatorial, distribuyendo tensiones a través de tabiques que rotan en torno al eje central.</p>
+      <p class="concept-body">El pabellón toma este principio de manera literal. El nodo apex traduce el pedúnculo. Las costillas helicoidales replican los tabiques internos. La membrana de ETFE es la piel: translúcida, liviana, tensa, que filtra la luz en el mismo tono verde ámbar de la uva a contraluz.</p>
+    </div>
+  </div>
+
+  <div class="specs">
+    <div class="spec"><div class="spec-num">16 m</div><div class="spec-label">Longitud</div></div>
+    <div class="spec"><div class="spec-num">8 m</div><div class="spec-label">Anchura</div></div>
+    <div class="spec"><div class="spec-num">4 m</div><div class="spec-label">Altura apex</div></div>
+    <div class="spec"><div class="spec-num">4 h</div><div class="spec-label">Montaje</div></div>
+  </div>
+</section>
+
+<!-- SISTEMA -->
+<section id="sistema">
+  <p class="section-label">02 — Sistema constructivo</p>
+  <div class="two-col">
+    <div>
+      <h2 class="concept-title">Costilla en<br><em>tres tramos</em>.<br>Nodo apex<br><em>único</em>.</h2>
+      <p class="concept-body" style="margin-top:24px;">Cada costilla se divide en 3 tramos de 2 m. Los empalmes son manguitos de aluminio macho-hembra con pasador de acero inox — sin herramientas especiales. Se instalan en pares opuestos para mantener el equilibrio del nodo apex durante el montaje.</p>
+    </div>
+    <div>
+      <p class="concept-body">El nodo apex es una pieza de fundición de aluminio A380 con 12 bocas anguladas entre 38° y 42° respecto al eje vertical. Es el corazón del sistema: donde converge toda la geometría helicoidal.</p>
+      <p class="concept-body" style="margin-top:20px;">Montaje completo con 6 personas en 4 horas. Transporte en 1 camión + 1 camioneta. Viable para 2–3 viñas por semana durante la temporada.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIALES -->
+<section id="materiales">
+  <p class="section-label">03 — Materialidad</p>
+  <ul class="mat-list">
+    <li class="mat-item">
+      <span class="mat-name">Costillas</span>
+      <span class="mat-desc">Madera laminada pino radiata — sección 60 × 40 mm — curva pre-conformada en prensa — 3 tramos de 2 m por costilla</span>
+    </li>
+    <li class="mat-item">
+      <span class="mat-name">Nodo apex</span>
+      <span class="mat-desc">Fundición aluminio A380 — Ø 280 mm — 12 bocas anguladas CNC — peso 4.2 kg</span>
+    </li>
+    <li class="mat-item">
+      <span class="mat-name">Membrana</span>
+      <span class="mat-desc">ETFE bi-axial 200 µm — serigrafía racimo de uvas — translúcida de día — iluminable de noche con tira LED 12V</span>
+    </li>
+    <li class="mat-item">
+      <span class="mat-name">Piso</span>
+      <span class="mat-desc">Tableros CLT 1.2 × 2.4 m — soporte regulable ±5 cm — apila en 2 pallets para transporte</span>
+    </li>
+    <li class="mat-item">
+      <span class="mat-name">Anclaje</span>
+      <span class="mat-desc">Plato base acero A42 Ø 800 mm — 6 tensores al suelo — sin perforación de pavimento en suelo blando</span>
+    </li>
+  </ul>
+</section>
+
+<footer>
+  <span>Pabellón Uva — Propuesta Taller</span>
+  <span>Estructura helicoidal · Membrana ETFE · Itinerante Chile</span>
+</footer>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const canvas = document.getElementById('canvas3d');
+const W = window.innerWidth, H = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 300);
+camera.position.set(20, 11, 20);
+camera.lookAt(0, 2, 0);
+
+// Iluminación
+scene.add(new THREE.AmbientLight(0xc8e898, 0.5));
+const sun = new THREE.DirectionalLight(0xfff5cc, 1.2);
+sun.position.set(20,25,15); sun.castShadow=true;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0x88bbff, 0.3);
+fill.position.set(-15,5,-10); scene.add(fill);
+const rim = new THREE.DirectionalLight(0x639922, 0.4);
+rim.position.set(0,10,-20); scene.add(rim);
+
+// Fog
+scene.fog = new THREE.FogExp2(0x0a1905, 0.018);
+
+const RL=8, RW=4, APEX_H=4.2;
+let pavilion, spinning=false, rotY=0.3;
+let mouseDown=false, lastX=0;
+
+function buildPavilion(ribCount, memOpacity){
+  const g = new THREE.Group();
+  const ribMat = new THREE.MeshPhongMaterial({color:0x3a6010, shininess:80, specular:0x88bb44});
+  const memMat = new THREE.MeshPhongMaterial({
+    color:0x7ab830, transparent:true, opacity:memOpacity,
+    side:THREE.DoubleSide, shininess:20, specular:0x224400
+  });
+  const apex = new THREE.Vector3(0, APEX_H, 0);
+
+  for(let i=0;i<ribCount;i++){
+    const t = i/ribCount;
+    const ba = t*Math.PI*2;
+    const tw = 0.55;
+    const p0 = new THREE.Vector3(RL*Math.cos(ba), 0, RW*Math.sin(ba));
+    const p1 = new THREE.Vector3(RL*.75*Math.cos(ba+tw*.5), APEX_H*.38, RW*.75*Math.sin(ba+tw*.5));
+    const p2 = new THREE.Vector3(RL*.28*Math.cos(ba+tw), APEX_H*.78, RW*.28*Math.sin(ba+tw));
+    const p3 = apex.clone();
+    const curve = new THREE.CubicBezierCurve3(p0,p1,p2,p3);
+    const rib = new THREE.Mesh(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curve.getPoints(40)),40,.06,7,false),
+      ribMat
+    );
+    rib.castShadow=true; g.add(rib);
+
+    const na = ((i+1)/ribCount)*Math.PI*2;
+    const q0=new THREE.Vector3(RL*Math.cos(na),0,RW*Math.sin(na));
+    const q1=new THREE.Vector3(RL*.75*Math.cos(na+tw*.5),APEX_H*.38,RW*.75*Math.sin(na+tw*.5));
+    const q2=new THREE.Vector3(RL*.28*Math.cos(na+tw),APEX_H*.78,RW*.28*Math.sin(na+tw));
+    const S=32;
+    const pos=[], idx=[];
+    for(let s=0;s<=S;s++){
+      const u=s/S,u2=u*u,u3=u2*u,v=1-u,v2=v*v,v3=v2*v;
+      const rp=new THREE.Vector3(v3*p0.x+3*v2*u*p1.x+3*v*u2*p2.x+u3*p3.x,v3*p0.y+3*v2*u*p1.y+3*v*u2*p2.y+u3*p3.y,v3*p0.z+3*v2*u*p1.z+3*v*u2*p2.z+u3*p3.z);
+      const np=new THREE.Vector3(v3*q0.x+3*v2*u*q1.x+3*v*u2*q2.x+u3*p3.x,v3*q0.y+3*v2*u*q1.y+3*v*u2*q2.y+u3*p3.y,v3*q0.z+3*v2*u*q1.z+3*v*u2*q2.z+u3*p3.z);
+      pos.push(rp.x,rp.y,rp.z,np.x,np.y,np.z);
+    }
+    for(let s=0;s<S;s++){const a=s*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+    const pg=new THREE.BufferGeometry();
+    pg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+    pg.setIndex(idx); pg.computeVertexNormals();
+    const panel=new THREE.Mesh(pg,memMat);
+    panel.receiveShadow=true; g.add(panel);
+  }
+
+  // Nodo apex
+  const apexMesh=new THREE.Mesh(new THREE.SphereGeometry(.22,16,16),new THREE.MeshPhongMaterial({color:0x1a3a08,shininess:120,specular:0x88bb44}));
+  apexMesh.position.copy(apex); g.add(apexMesh);
+
+  // Suelo
+  const groundGeo=new THREE.CylinderGeometry(1,1,.03,64);
+  groundGeo.scale(RL*1.15,1,RW*1.15);
+  const ground=new THREE.Mesh(groundGeo,new THREE.MeshPhongMaterial({color:0x2a4a10,transparent:true,opacity:.4}));
+  ground.position.y=-.01; ground.receiveShadow=true; g.add(ground);
+
+  return g;
+}
+
+pavilion = buildPavilion(12, 0.55);
+scene.add(pavilion);
+
+// Partículas de fondo (estrellas / polvo)
+const starGeo = new THREE.BufferGeometry();
+const stars = [];
+for(let i=0;i<800;i++){
+  stars.push((Math.random()-.5)*200,(Math.random()-.5)*100,(Math.random()-.5)*200);
+}
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(stars,3));
+const starMesh = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0x639922,size:.12,transparent:true,opacity:.3}));
+scene.add(starMesh);
+
+// Interacción mouse
+canvas.addEventListener('mousedown',e=>{mouseDown=true;lastX=e.clientX;});
+window.addEventListener('mouseup',()=>mouseDown=false);
+window.addEventListener('mousemove',e=>{
+  if(!mouseDown)return;
+  rotY+=(e.clientX-lastX)*.01; lastX=e.clientX;
+  pavilion.rotation.y=rotY;
+});
+canvas.addEventListener('touchstart',e=>{lastX=e.touches[0].clientX;},{passive:true});
+canvas.addEventListener('touchmove',e=>{
+  const dx=e.touches[0].clientX-lastX;
+  rotY+=dx*.01; lastX=e.touches[0].clientX;
+  pavilion.rotation.y=rotY;
+},{passive:true});
+
+// Vistas
+const views=[
+  {pos:[20,11,20],look:[0,2,0]},
+  {pos:[0,32,.1],look:[0,2,0]},
+  {pos:[25,5,0],look:[0,2,0]}
+];
+window.setView=function(i){
+  const [px,py,pz]=views[i].pos;
+  camera.position.set(px,py,pz);
+  camera.lookAt(...views[i].look);
+  document.querySelectorAll('.ctrl-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+};
+
+let animId=null;
+window.toggleSpin=function(){
+  spinning=!spinning;
+  document.getElementById('btnSpin').classList.toggle('active',spinning);
+  if(spinning) loop();
+};
+
+document.getElementById('ribSlider').oninput=function(){
+  const op=parseFloat(document.getElementById('opacSlider').value)/100;
+  scene.remove(pavilion);
+  pavilion=buildPavilion(parseInt(this.value),op);
+  pavilion.rotation.y=rotY; scene.add(pavilion);
+};
+document.getElementById('opacSlider').oninput=function(){
+  const rb=parseInt(document.getElementById('ribSlider').value);
+  scene.remove(pavilion);
+  pavilion=buildPavilion(rb,parseFloat(this.value)/100);
+  pavilion.rotation.y=rotY; scene.add(pavilion);
+};
+
+function loop(){
+  if(!spinning)return;
+  rotY+=.006; pavilion.rotation.y=rotY;
+  starMesh.rotation.y+=.0003;
+  renderer.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize',()=>{
+  const W=window.innerWidth,H=window.innerHeight;
+  camera.aspect=W/H; camera.updateProjectionMatrix();
+  renderer.setSize(W,H);
+});
+
+// Render loop suave
+function render(){ requestAnimationFrame(render); if(!spinning) renderer.render(scene,camera); }
+render();
+</script>
+</body>
+</html>
